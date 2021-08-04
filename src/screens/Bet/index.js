@@ -40,6 +40,15 @@ const Bet = ({ showPopup }) => {
               ),
           );
 
+
+          const allEvents = useSelector(
+            (state) => _.take(
+                state.event.events,
+                state.event.events.length,
+                
+            ),
+            )
+
           const moveToSlide = (index) => {
               if (swiper) {
                   swiper.slideTo(index);
@@ -66,7 +75,12 @@ const Bet = ({ showPopup }) => {
           };
 
           const getRelatedBets = () => {
-              return _.get(event, 'bets', []);
+              var relatedBets = [];
+              _.forEach(allEvents, (value) => {
+                  relatedBets.push({ betData: _.first(value.bets), eventImg: value.previewImageUrl, eventId: value._id })
+              });
+              return relatedBets;
+
           };
 
           const getRelatedBetSliderPages = () => {
@@ -82,10 +96,8 @@ const Bet = ({ showPopup }) => {
               );
           };
 
-          const onBetClick = (betId) => {
+          const onBetClick = (betId, eventId) => {
               return () => {
-                  const eventId = _.get(event, '_id', null);
-
                   history.push(Routes.getRouteWithParameters(
                       Routes.bet,
                       {
@@ -98,15 +110,17 @@ const Bet = ({ showPopup }) => {
 
           const renderRelatedBetCard = (bet, index) => {
               if (bet) {
-                  const betId = _.get(bet, '_id');
+                  const betId = _.get(bet.betData, '_id');
+
+                  const eventId = bet.eventId;
 
                   return (
                       <RelatedBetCard
                           key={index}
-                          title={bet.marketQuestion}
-                          userId={bet.creator}
-                          image={event.previewImageUrl}
-                          onClick={onBetClick(betId)}
+                          title={bet.betData.marketQuestion}
+                          userId={bet.betData.creator}
+                          image={bet.eventImg}
+                          onClick={onBetClick(betId, eventId)}
                       />
                   );
               }
